@@ -1,4 +1,4 @@
-import token from "../auth.js";
+import token from "../info.js";
 import fetch from 'node-fetch';
 import errorhandler from '../handling/errorhandler.js'
 
