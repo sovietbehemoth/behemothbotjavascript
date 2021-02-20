@@ -1,6 +1,6 @@
 import CLIENT_START from "./websocket.js";
 import message_send from "./functions/messagecreate.js";
-import ban_member from "./functions/ban.js";
+import ban_member from "./functions/member_ban.js";
 import getLyric from "./commands/lyric.js";
 
 CLIENT_START();
