@@ -3,10 +3,6 @@ import axios from "axios";
 import fetch from 'node-fetch';
 import cheerio from "cheerio";
 
-function headerForm(header) {
-    return {  }
-}
-
 const reqHandlerParser = async (location, args) => {
     try {
     if (!args[1].startsWith('https://') && !args[1].startsWith('http://')) message_send(location, "BehemothBotParser: Invalid URL");
