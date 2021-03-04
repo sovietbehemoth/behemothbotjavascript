@@ -13,6 +13,7 @@ const responsehandler = async (content, parsing, location) => {
     var outresponse
     var trueoutput;
     const strhandling = parsing.slice(parsing.indexOf("=>") + 1, parsing.length);
+   
     if (strhandling.indexOf("<output:") > -1) {
         const outputglobalpos = strhandling.indexOf('<output:') + 1;
         outboolval = strhandling[outputglobalpos].replace(">", "");
@@ -66,7 +67,7 @@ const responsehandler = async (content, parsing, location) => {
     if (strhandling.indexOf("<startswith:") > -1) {
         const position1 = strhandling.indexOf("<startswith:") + 1;
         const position2 = strhandling.indexOf("<startswith:") + 2;
-        const queryvalue = strhandling[position1].replace(",", "").replace("_", " ");
+        const queryvalue = strhandling[position1].replace(",", "").replace(/_/g, " ");
         const indexstart = strhandling[position2].replace(">", "");
         if (FINALCONTENT.startsWith(queryvalue, indexstart) && outboolglobal === true && outbooltrue === true) {
             message_send(location, `StartsWithObject: True: Starts with '${queryvalue}'`);
@@ -75,7 +76,7 @@ const responsehandler = async (content, parsing, location) => {
     if (strhandling.indexOf("<endswith:") > -1) {
         const position1 = strhandling.indexOf("<endswith:") + 1;
         const position2 = strhandling.indexOf("<endswith:") + 2;
-        const queryvalue = strhandling[position1].replace(",", "").replace("_", " ");
+        const queryvalue = strhandling[position1].replace(",", "").replace(/_/g, " ");
         const indexstart = strhandling[position2].replace(">", "");
         if (indexstart < 0) message_send(location, "BehemothBotParser: Error, illogical value assignment to string indexing value");
         if (FINALCONTENT.endsWith(queryvalue, indexstart) && outbooltrue === true && outboolval === true) {
@@ -84,7 +85,7 @@ const responsehandler = async (content, parsing, location) => {
     }
     if (strhandling.indexOf("<includes:") > -1) {
         const position = strhandling.indexOf('<includes:') + 1;
-        const includingvalue = strhandling[position].replace(">", "").replace("_", " ");
+        const includingvalue = strhandling[position].replace(">", "").replace(/_/g, " ");
         if (!includingvalue.length) message_send(location, "BehemothBotParser: Error, no value specified");
         else if (FINALCONTENT.includes(includingvalue) && outboolglobal === true && outbooltrue === true) message_send(location, "IncludesObject: True: Includes " + "'" + includingvalue + "'");
         else if (outboolglobal === true && outboolfalse === true) message_send(location, "IncludesObject: False: Does not include " + "'" + includingvalue + "'");
@@ -95,8 +96,8 @@ const responsehandler = async (content, parsing, location) => {
     if (strhandling.indexOf("<search:") > -1) {
         const position1 = strhandling.indexOf('<search:') + 1;
         const position2 = strhandling.indexOf("<search:") + 2;
-        const queryvalue = strhandling[position1].replace(",", "").replace("_", " ");
-        const defaultqueryvalue = strhandling[position1].replace(">", "").replace("_", " ");
+        const queryvalue = strhandling[position1].replace(",", "").replace(/_/g, " ");
+        const defaultqueryvalue = strhandling[position1].replace(">", "").replace(/_/g, " ");
         console.log(defaultqueryvalue);
         const regexp = new RegExp(defaultqueryvalue, 'i')
         if (strhandling[position1].endsWith(",") && strhandling[position2].replace(">", "") === "sensitive") {
@@ -114,7 +115,7 @@ const responsehandler = async (content, parsing, location) => {
     if (strhandling.indexOf("<instanceof:") > -1) {
         const position = strhandling.indexOf('<instanceof:') + 1;
         const position2 = strhandling.indexOf('<instanceof:') + 2;
-        const instance = strhandling[position].replace(",", "").replace("_", " ");
+        const instance = strhandling[position].replace(",", "").replace(/_/g, " ");
         const specification = strhandling[position2].replace(">", "");
         switch (specification) {
             case "first":
@@ -141,9 +142,10 @@ const responsehandler = async (content, parsing, location) => {
         const position1 = strhandling.indexOf('<replace:') + 1;
         const position2 = strhandling.indexOf("<replace:") + 2;
         const position3 = strhandling.indexOf("<replace:") + 3
-        const targetvalue = strhandling[position1].replace(",", "").replace("_", " ");
-        const defaultqueryvalue = strhandling[position2].replace(">", "").replace("_", " ");
-        const nondefaultqueryvalue = strhandling[position2].replace(",", "").replace("_", " ");
+        const targetvalue = strhandling[position1].replace(",", "").replace(/_/g, " ");
+        const defaultqueryvalue = strhandling[position2].replace(">", "").replace(/_/g, " ");
+        const nondefaultqueryvalue = strhandling[position2].replace(",", "").replace(/_/g, " ");
+        console.log(nondefaultqueryvalue);
         const thirdparam = strhandling[position3].replace(">", "");
         switch (thirdparam) { 
             case "global":
@@ -161,11 +163,11 @@ const responsehandler = async (content, parsing, location) => {
                 break;
         }
     }
-    if (strhandling.indexOf("<remove:")) {
+    if (strhandling.indexOf("<remove:") > -1) {
         const position1 = strhandling.indexOf('<remove:') + 1;
         const position2 = strhandling.indexOf("<remove:") + 2;
-        const arg1 = strhandling[position1].replace(",", "").replace("_", " ");
-        const arg2 = strhandling[position2].replace(",", "").replace("_", " ");
+        const arg1 = strhandling[position1].replace(",", "").replace(/_/g, " ");
+        const arg2 = strhandling[position2].replace(",", "").replace(/_/g, " ");
         if (arg1.startsWith("start:") && arg2.startsWith("end:")) {
             const startvalue = arg1.split(":")[1];
             const endvalue = arg2.split(":")[1];
@@ -181,7 +183,78 @@ const responsehandler = async (content, parsing, location) => {
             FINALCONTENT = FINALCONTENT.replace(arg1, "");
         }
     }
-   
+
+    if (strhandling.indexOf("<split:") > -1) {
+        const position = strhandling.indexOf('<split:') + 1;
+        const splitvalue = strhandling[position].replace(">", "").replace(/_/g, " ");
+        FINALCONTENT = FINALCONTENT.split(splitvalue);
+    }
+
+    if (strhandling.indexOf("<join:") > -1) {
+        const position = strhandling.indexOf('<join:') + 1;
+        const joinval = strhandling[position].replace(">", "").replace(/_/g, " ");
+        FINALCONTENT = FINALCONTENT.join(joinval);
+    }
+
+    if (strhandling.indexOf("<remove:last>") > -1) {
+        FINALCONTENT = FINALCONTENT.pop();
+    }
+
+    if (strhandling.indexOf("<remove:first>") > -1) {
+        FINALCONTENT = FINALCONTENT.shift();
+    }
+
+    if (strhandling.indexOf("<addtoend:") > -1) {
+        const position = strhandling.indexOf('<addtoend:') + 1;
+        const pushval = strhandling[position].replace(">", "").replace(/_/g, " ");
+        FINALCONTENT = FINALCONTENT.push(pushval);
+    }
+
+    if (strhandling.indexOf("<addtostart:") > -1) {
+        const position = strhandling.indexOf('<addtostart:') + 1;
+        const pushval = strhandling[position].replace(">", "").replace(/_/g, " ");
+        FINALCONTENT = FINALCONTENT.unshift(pushval);
+    }
+
+    if (strhandling.indexOf("<item:") > -1) {
+        const position = strhandling.indexOf('<item:') + 1;
+        const pushval = strhandling[position].replace(">", "").replace(/_/g, " ");
+        message_send(location, FINALCONTENT[pushval]);
+    }
+
+    if (strhandling.indexOf("<add:") > -1) {
+        const position = strhandling.indexOf('<add:') + 1;
+        const position2 = strhandling.indexOf("<add:") + 2;
+        const pushval = strhandling[position].replace(">", "").replace(/_/g, " ");
+        const arg2 = strhandling[position2].replace(",", "").replace(/_/g, " ");
+        FINALCONTENT = FINALCONTENT.splice(pushval, arg2)
+    }
+
+    if (strhandling.indexOf("<slice:") > -1) {
+        const position = strhandling.indexOf('<slice:') + 1;
+        const position2 = strhandling.indexOf("<slice:") + 2;
+        const pushval = strhandling[position].replace(">", "").replace(/_/g, " ");
+        const arg2 = strhandling[position2].replace(",", "").replace(/_/g, " ");
+        if (arg2 === rest) FINALCONTENT = FINALCONTENT.slice(pushval, FINALCONTENT.length);
+        else FINALCONTENT = FINALCONTENT.slice(pushval, arg2);
+    }
+
+    if (strhandling.indexOf("<alphabetic>") > -1) {
+        FINALCONTENT = FINALCONTENT.sort();
+    }
+
+    if (strhandling.indexOf("<reversify>") > -1) {
+        FINALCONTENT = FINALCONTENT.reverse();
+    }
+
+    if (strhandling.indexOf("<wordcount>") > -1) {
+        if (Array.isArray(FINALCONTENT)) message_send(location, "BehemothBotParser: Error, cannot word count on an array object.");
+        else message_send(location, FINALCONTENT.split(" ").length);
+    }
+
+    if (strhandling.indexOf("<string>") > -1) {
+        FINALCONTENT = FINALCONTENT.toString();
+    }
 
     if (sendresponse === true) message_send(location, FINALCONTENT);
 }
